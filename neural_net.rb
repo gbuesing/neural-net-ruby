@@ -97,35 +97,27 @@ class NeuralNet
       # Stop at 1; no need to calculate for input layer
       @output_layer.downto(1).each do |layer|
         @node_deltas[layer] = []
+        at_output_layer = layer == @output_layer
+        
+        target_layer = layer + 1
+        target_deltas = @node_deltas[target_layer]
+        target_weights = @weights[target_layer]
 
         @shape[layer].times do |neuron|
-          @node_deltas[layer][neuron] = 
-            if layer == @output_layer
-              node_delta_for_output_neuron layer, neuron
-            else
-              node_delta_for_inner_neuron layer, neuron
+          output = @outputs[layer][neuron]
+          derivative = output * (1.0 - output)
+
+          @node_deltas[layer][neuron] = if at_output_layer
+            -@training_error[neuron] * derivative
+          else
+            weighted_target_deltas = target_deltas.map.with_index do |delta, target_neuron| 
+              delta * target_weights[target_neuron][neuron]
             end
+
+            derivative * sum_of(weighted_target_deltas)
+          end
         end
       end
-    end
-
-    def node_delta_for_output_neuron layer, neuron
-      output = @outputs[layer][neuron]
-      error =  @training_error[neuron]
-      derivative = output * (1.0 - output)
-      -error * derivative
-    end
-
-    def node_delta_for_inner_neuron layer, neuron
-      output = @outputs[layer][neuron]
-      target_layer = layer + 1
-
-      weighted_target_deltas = @node_deltas[target_layer].map.with_index do |delta, target_neuron| 
-        delta * @weights[target_layer][target_neuron][neuron]
-      end
-
-      derivative = output * (1.0 - output)
-      derivative * sum_of(weighted_target_deltas)
     end
 
     def calculate_gradients

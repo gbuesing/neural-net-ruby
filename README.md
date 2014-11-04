@@ -5,7 +5,7 @@ A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_n
 
 Code is written with the primary goal of readability, not speed optimization.
 
-Inspirations:
+Sources and inspirations:
 
 - [Introduction to the Math of Neural Networks](http://www.amazon.com/Introduction-Math-Neural-Networks-Heaton-ebook/dp/B00845UQL6)
 - [Thoughtful Machine Learning: A Test-Driven Approach](http://www.amazon.com/Thoughtful-Machine-Learning-Test-Driven-Approach/dp/1449374069)
