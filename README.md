@@ -5,6 +5,8 @@ A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_n
 
 Code is written with the primary goal of readability, not speed optimization.
 
+Run ```ruby iris.rb``` to see an example of a neural net solving a classification problem: predict the species of an iris flower based on sepal and petal size.
+
 Sources and inspirations:
 
 - [Introduction to the Math of Neural Networks](http://www.amazon.com/Introduction-Math-Neural-Networks-Heaton-ebook/dp/B00845UQL6)

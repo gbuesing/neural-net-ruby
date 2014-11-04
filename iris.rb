@@ -1,6 +1,7 @@
 require_relative 'neural_net'
 
-# http://en.wikipedia.org/wiki/Iris_flower_data_set
+# This neural network will predict the species of an iris based on sepal and petal size
+# Dataset: http://en.wikipedia.org/wiki/Iris_flower_data_set
 
 label_encodings = {
   "Iris-setosa"     => [1, 0, 0], 
