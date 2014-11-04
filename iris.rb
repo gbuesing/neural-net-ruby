@@ -28,6 +28,8 @@ nn = NeuralNet.new [4,4,3]
 
 # 1. Train the network...
 
+puts "Training the network..."
+
 result = nn.train(train_data, learning_rate: 0.05, 
                               momentum: 0.01,
                               error_threshold: 0.005, 
@@ -36,9 +38,12 @@ result = nn.train(train_data, learning_rate: 0.05,
                               )
 
 puts result
+puts "Done training the network."
 
 
 # 2. Test the trained network...
+
+puts "Testing the trained network..."
 
 mse = -> (actual, ideal) {
   errors = actual.zip(ideal).map {|a, i| a - i }
@@ -59,5 +64,5 @@ test_data.each do |input, expected|
   prediction_success ? success += 1 : failure += 1
 end
 
-puts "Test data error: #{(errorsum / test_data.length.to_f).round(5)}"
+# puts "Test data error: #{(errorsum / test_data.length.to_f).round(5)}"
 puts "Test prediction success: #{success}, failure: #{failure}"
