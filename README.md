@@ -3,7 +3,7 @@ Neural Net (in Ruby)
 
 A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_network) with [backpropagation](http://en.wikipedia.org/wiki/Backpropagation), written in Ruby.
 
-Code is written with the primary goal of readability, not speed optimization.
+Code is optimized for readability, not speed.
 
 Run ```ruby iris.rb``` to see an example of a neural net solving a classification problem: predict the species of an iris flower based on sepal and petal size.
 

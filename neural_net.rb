@@ -70,11 +70,11 @@ class NeuralNet
       data.each do |(input, ideal_output)|
         run input
 
-        calculate_training_error ideal_output
-        calculate_node_deltas
+        training_error = calculate_training_error ideal_output
+        calculate_node_deltas training_error
         calculate_gradients
         
-        total_error += mean_squared_error(@training_error)
+        total_error += mean_squared_error training_error
       end
 
       # update weights using gradients for batch
@@ -85,12 +85,12 @@ class NeuralNet
     end
 
     def calculate_training_error ideal_output
-      @training_error = @outputs[@output_layer].map.with_index do |output, i| 
+      @outputs[@output_layer].map.with_index do |output, i| 
         output - ideal_output[i]
       end
     end
 
-    def calculate_node_deltas
+    def calculate_node_deltas training_error
       @node_deltas = []
       # Calculation of node delta for non-output layers requires the node delta of its target layer
       # therefore, we walk backwards through layers
@@ -98,7 +98,7 @@ class NeuralNet
       @output_layer.downto(1).each do |layer|
         @node_deltas[layer] = []
         at_output_layer = layer == @output_layer
-        
+
         target_layer = layer + 1
         target_deltas = @node_deltas[target_layer]
         target_weights = @weights[target_layer]
@@ -108,7 +108,7 @@ class NeuralNet
           derivative = output * (1.0 - output)
 
           @node_deltas[layer][neuron] = if at_output_layer
-            -@training_error[neuron] * derivative
+            -training_error[neuron] * derivative
           else
             weighted_target_deltas = target_deltas.map.with_index do |delta, target_neuron| 
               delta * target_weights[target_neuron][neuron]
