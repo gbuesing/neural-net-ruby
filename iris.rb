@@ -23,12 +23,27 @@ iris_data.shuffle!
 train_data = iris_data.slice(0, 100)
 test_data = iris_data.slice(100, 50)
 
-
+# Build a 3 layer network: 4 input neurons, 4 hidden neurons, 3 output neurons
+# Bias neurons are automatically added to input + hidden layers; no need to specify these
 nn = NeuralNet.new [4,4,3]
 
-# 1. Train the network...
+puts "Testing the untrained network..."
 
-puts "Training the network..."
+prediction_success = -> (actual, ideal) {
+  predicted = (0..2).max_by {|i| actual[i] }
+  ideal[predicted] == 1 
+}
+
+success, failure = 0,0
+test_data.each do |input, expected|
+  output = nn.run input
+  prediction_success.(output, expected) ? success += 1 : failure += 1
+end
+
+puts "Untrained prediction success: #{success}, failure: #{failure}"
+
+
+puts "\nTraining the network...\n\n"
 
 result = nn.train(train_data, learning_rate: 0.05, 
                               momentum: 0.01,
@@ -37,13 +52,11 @@ result = nn.train(train_data, learning_rate: 0.05,
                               log_every: 100
                               )
 
-puts result
-puts "Done training the network."
+# puts result
+puts "\nDone training the network."
 
 
-# 2. Test the trained network...
-
-puts "Testing the trained network..."
+puts "\nTesting the trained network..."
 
 mse = -> (actual, ideal) {
   errors = actual.zip(ideal).map {|a, i| a - i }
@@ -54,15 +67,9 @@ success, failure, errorsum = 0,0,0
 
 test_data.each do |input, expected|
   output = nn.run input
-
+  prediction_success.(output, expected) ? success += 1 : failure += 1
   errorsum += mse.(output, expected)
-
-  # highest output value indicates predicted label for input
-  predicted = (0..2).max_by {|i| output[i] }
-  prediction_success = expected[predicted] == 1 
-
-  prediction_success ? success += 1 : failure += 1
 end
 
+puts "Trained prediction success: #{success}, failure: #{failure}"
 # puts "Test data error: #{(errorsum / test_data.length.to_f).round(5)}"
-puts "Test prediction success: #{success}, failure: #{failure}"
