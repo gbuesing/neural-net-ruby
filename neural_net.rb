@@ -71,7 +71,7 @@ class NeuralNet
         run input
 
         training_error = calculate_training_error ideal_output
-        calculate_node_deltas training_error
+        calculate_deltas training_error
         calculate_gradients
         
         total_error += mean_squared_error training_error
@@ -90,24 +90,24 @@ class NeuralNet
       end
     end
 
-    def calculate_node_deltas training_error
-      @node_deltas = []
+    def calculate_deltas training_error
+      @deltas = []
       # Calculation of node delta for non-output layers requires the node delta of its target layer
       # therefore, we walk backwards through layers
       # Stop at 1; no need to calculate for input layer
       @output_layer.downto(1).each do |layer|
-        @node_deltas[layer] = []
-        at_output_layer = layer == @output_layer
+        @deltas[layer] = []
+        is_output_layer = layer == @output_layer
 
         target_layer = layer + 1
-        target_deltas = @node_deltas[target_layer]
+        target_deltas = @deltas[target_layer]
         target_weights = @weights[target_layer]
 
         @shape[layer].times do |neuron|
           output = @outputs[layer][neuron]
           derivative = output * (1.0 - output)
 
-          @node_deltas[layer][neuron] = if at_output_layer
+          @deltas[layer][neuron] = if is_output_layer
             -training_error[neuron] * derivative
           else
             weighted_target_deltas = target_deltas.map.with_index do |delta, target_neuron| 
@@ -126,16 +126,13 @@ class NeuralNet
         source_neurons = @shape[source_layer] + 1 # include extra bias neuron
 
         @shape[layer].times do |neuron|
-          node_delta = @node_deltas[layer][neuron]
+          delta = @deltas[layer][neuron]
 
           source_neurons.times do |source_neuron|
             output = @outputs[source_layer][source_neuron] || 1 # if no output, assume bias neuron
-            previous_gradient = @gradients[layer][neuron][source_neuron]
-            updated_gradient = previous_gradient + output * node_delta # accumulate gradients from batch
-            @gradients[layer][neuron][source_neuron] = updated_gradient
+            @gradients[layer][neuron][source_neuron] += output * delta # accumulate gradients from batch
           end
         end
-
       end
     end
 
@@ -147,12 +144,12 @@ class NeuralNet
         @shape[layer].times do |neuron|
           source_neurons.times do |source_neuron|
             gradient = @gradients[layer][neuron][source_neuron]
-            previous_delta = @weight_changes[layer][neuron][source_neuron]
+            weight_change = @weight_changes[layer][neuron][source_neuron]
 
-            delta = (learning_rate * gradient) + (momentum * previous_delta)
+            weight_change = (learning_rate * gradient) + (momentum * weight_change)
 
-            @weights[layer][neuron][source_neuron] += delta
-            @weight_changes[layer][neuron][source_neuron] = delta
+            @weights[layer][neuron][source_neuron] += weight_change
+            @weight_changes[layer][neuron][source_neuron] = weight_change
           end
         end
       end
