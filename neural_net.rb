@@ -144,9 +144,9 @@ class NeuralNet
         @shape[layer].times do |neuron|
           source_neurons.times do |source_neuron|
             gradient = @gradients[layer][neuron][source_neuron]
-            weight_change = @weight_changes[layer][neuron][source_neuron]
+            previous_weight_change = @weight_changes[layer][neuron][source_neuron]
 
-            weight_change = (learning_rate * gradient) + (momentum * weight_change)
+            weight_change = (learning_rate * gradient) + (momentum * previous_weight_change)
 
             @weights[layer][neuron][source_neuron] += weight_change
             @weight_changes[layer][neuron][source_neuron] = weight_change
