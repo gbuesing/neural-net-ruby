@@ -110,8 +110,9 @@ class NeuralNet
           @deltas[layer][neuron] = if is_output_layer
             -training_error[neuron] * derivative
           else
-            weighted_target_deltas = target_deltas.map.with_index do |delta, target_neuron| 
-              delta * target_weights[target_neuron][neuron]
+            weighted_target_deltas = target_deltas.map.with_index do |target_delta, target_neuron| 
+              target_weight = target_weights[target_neuron][neuron]
+              target_delta * target_weight
             end
 
             derivative * weighted_target_deltas.reduce(:+)
