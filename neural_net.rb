@@ -52,7 +52,7 @@ class NeuralNet
           weight * input
         end
 
-        sigmoid sum_of(weighted_inputs)
+        sigmoid weighted_inputs.reduce(:+)
       end
     end
 
@@ -114,7 +114,7 @@ class NeuralNet
               delta * target_weights[target_neuron][neuron]
             end
 
-            derivative * sum_of(weighted_target_deltas)
+            derivative * weighted_target_deltas.reduce(:+)
           end
         end
       end
@@ -187,10 +187,6 @@ class NeuralNet
 
     # http://en.wikipedia.org/wiki/Mean_squared_error
     def mean_squared_error errors
-      sum_of(errors.map {|e| e**2}) / errors.length.to_f
-    end
-
-    def sum_of array
-      array.inject(0) {|sum, val| sum += val; sum}
+      errors.map {|e| e**2}.reduce(:+) / errors.length.to_f
     end
 end
