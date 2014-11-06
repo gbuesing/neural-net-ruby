@@ -62,6 +62,7 @@ puts "Untrained prediction success: #{success}, failure: #{failure}"
 
 puts "\nTraining the network...\n\n"
 
+t1 = Time.now
 result = nn.train(train_data, learning_rate: 0.3, 
                               momentum: 0.1,
                               error_threshold: 0.005, 
@@ -70,7 +71,7 @@ result = nn.train(train_data, learning_rate: 0.3,
                               )
 
 # puts result
-puts "\nDone training the network."
+puts "\nDone training the network. #{(Time.now - t1).round(1)}s"
 
 
 puts "\nTesting the trained network..."
