@@ -5,7 +5,7 @@ class NeuralNet
     max_iterations:   20_000,
     learning_rate:    0.3,
     momentum:         0.1,
-    error_threshold:  0.05
+    error_threshold:  0.005
   }
 
   def initialize(shape)

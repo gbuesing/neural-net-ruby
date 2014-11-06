@@ -19,6 +19,23 @@ File.open("iris.data") do |f|
   end
 end
 
+
+# Normalize data values before feeding into network
+normalize = -> (val, high, low) {  (val - low) / (high - low) } # maps input to float between 0 and 1
+
+columns = (0..3).map do |i|
+  iris_data.map {|row| row[0][i] }
+end
+
+iris_data.each.with_index do |row, i|
+  normalized = row[0].map.with_index do |val, j| 
+    max, min = columns[j].max, columns[j].min
+    normalize.(val, max, min)
+  end
+  iris_data[i][0] = normalized
+end
+
+
 iris_data.shuffle!
 train_data = iris_data.slice(0, 100)
 test_data = iris_data.slice(100, 50)
@@ -45,8 +62,8 @@ puts "Untrained prediction success: #{success}, failure: #{failure}"
 
 puts "\nTraining the network...\n\n"
 
-result = nn.train(train_data, learning_rate: 0.05, 
-                              momentum: 0.01,
+result = nn.train(train_data, learning_rate: 0.3, 
+                              momentum: 0.1,
                               error_threshold: 0.005, 
                               max_iterations: 2_000,
                               log_every: 100
