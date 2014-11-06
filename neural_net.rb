@@ -11,7 +11,7 @@ class NeuralNet
   def initialize(shape)
     @shape = shape
     @output_layer = @shape.length - 1
-    set_random_weight_values
+    set_initial_weight_values
   end
 
   def train data, opts = {}
@@ -172,8 +172,20 @@ class NeuralNet
       @gradients = build_matrix { 0.0 }
     end
 
-    def set_random_weight_values
-      @weights = build_matrix { rand(-1.0..1.0) }    
+    def set_initial_weight_values
+      # Initialize all weights to random float value
+      @weights = build_matrix { rand(-0.5..0.5) }  
+
+      # Update weights for first hidden layer (Nguyen-Widrow method)
+      # This is a bit obscure, and not entirely necessary, but it will help the network train faster
+      beta = 0.7 * @shape[1]**(1.0 / @shape[0])
+
+      @shape[1].times do |neuron|
+        weights = @weights[1][neuron]
+        norm = Math.sqrt weights.map {|w| w**2}.reduce(:+)
+        updated_weights = weights.map {|weight| (beta * weight) / norm }
+        @weights[1][neuron] = updated_weights
+      end
     end
 
     def build_matrix
