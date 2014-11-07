@@ -67,25 +67,22 @@ class NeuralNet
   private
 
     def train_on_batch data
-      total_error = 0
+      total_mse = 0
 
       set_gradients_to_zeroes
 
       data.each do |(input, ideal_output)|
         run input
-
         training_error = calculate_training_error ideal_output
-        calculate_deltas training_error
-        calculate_gradients
-        
-        total_error += mean_squared_error training_error
+        update_gradients training_error
+        total_mse += mean_squared_error training_error
       end
 
       # update weights using gradients for batch
       update_weights
 
-      # return average error for batch
-      total_error / (data.length.to_f)
+      # return average mean squared error for batch
+      total_mse / data.length.to_f
     end
 
     def calculate_training_error ideal_output
@@ -94,48 +91,35 @@ class NeuralNet
       end
     end
 
-    # Propagate the training error backwards through the network
-    def calculate_deltas training_error
-      @deltas = []
-
+    def update_gradients training_error
+      deltas = []
+      # Starting from output layer and working backwards, backpropagating the training error
       @output_layer.downto(1).each do |layer|
-        @deltas[layer] = []
-
-        target_layer = layer + 1 # i.e. the layer that feeds into this one, when working backwards
-        target_deltas = @deltas[target_layer]
-        target_weights = @weights[target_layer]
+        deltas[layer] = []
+        source_layer = layer - 1
+        source_neurons = @shape[source_layer] + 1 # account for bias neuron
+        target_layer = layer + 1
 
         @shape[layer].times do |neuron|
           output = @outputs[layer][neuron]
           activation_derivative = output * (1.0 - output)
 
-          @deltas[layer][neuron] = if layer == @output_layer
+          # calculate delta for neuron
+          delta = deltas[layer][neuron] = if layer == @output_layer
             # For neurons in output layer, use training error
             -training_error[neuron] * activation_derivative
           else
             # For neurons in hidden layers, weight deltas from target layer
-            weighted_target_deltas = target_deltas.map.with_index do |target_delta, target_neuron| 
-              target_weight = target_weights[target_neuron][neuron]
+            weighted_target_deltas = deltas[target_layer].map.with_index do |target_delta, target_neuron| 
+              target_weight = @weights[target_layer][target_neuron][neuron]
               target_delta * target_weight
             end
 
             sum_of_weighted_target_deltas = weighted_target_deltas.reduce(:+)
             activation_derivative * sum_of_weighted_target_deltas
           end
-        end
-      end
-    end
 
-    # After backpropagating the error, we can move forward again to calculate gradients
-    # For a batch of training data, we accumulate the gradients, so that we can then update weights once for the batch
-    def calculate_gradients
-      1.upto(@output_layer).each do |layer|
-        source_layer = layer - 1 # i.e, the layer that is feeding into this one
-        source_neurons = @shape[source_layer] + 1 # account for bias neuron
-
-        @shape[layer].times do |neuron|
-          delta = @deltas[layer][neuron]
-
+          # use delta to calculate gradients
           source_neurons.times do |source_neuron|
             source_output = @outputs[source_layer][source_neuron] || 1 # if no output, this is the bias neuron
             gradient = source_output * delta
