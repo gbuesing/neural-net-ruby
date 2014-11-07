@@ -11,3 +11,4 @@ Sources and inspirations:
 - [Thoughtful Machine Learning: A Test-Driven Approach](http://www.amazon.com/Thoughtful-Machine-Learning-Test-Driven-Approach/dp/1449374069)
 - [Hacker's guide to Neural Networks](http://karpathy.github.io/neuralnets/)
 - [https://github.com/harthur/brain](https://github.com/harthur/brain)
+- [The RPROP Algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.21.1417&rep=rep1&type=pdf)
