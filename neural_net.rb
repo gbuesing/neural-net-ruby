@@ -13,31 +13,6 @@ class NeuralNet
     set_initial_weight_values
   end
 
-  def train data, opts = {}
-    opts = DEFAULT_TRAINING_OPTIONS.merge(opts)
-    error_threshold, log_every = opts[:error_threshold], opts[:log_every]
-    iteration = 0
-    error = nil
-
-    set_weight_changes_to_zeros
-    set_initial_weight_update_values if @weight_update_values.nil?
-    set_previous_gradients_to_zeroes
-
-    while iteration < opts[:max_iterations]
-      iteration += 1
-
-      error = train_on_batch(data)
-      
-      if log_every && (iteration % log_every == 0)
-        puts "[#{iteration}] error: #{error.round(5)}"
-      end
-
-      break if error_threshold && (error < error_threshold)
-    end
-
-    {error: error.round(5), iterations: iteration, below_error_threshold: (error < error_threshold)}
-  end
-
   def run input
     # Input to this method represents the output of the first layer (i.e., the input layer)
     @outputs = [input]
@@ -64,6 +39,31 @@ class NeuralNet
     @outputs[@output_layer]
   end
 
+  def train data, opts = {}
+    opts = DEFAULT_TRAINING_OPTIONS.merge(opts)
+    error_threshold, log_every = opts[:error_threshold], opts[:log_every]
+    iteration = 0
+    error = nil
+
+    set_weight_changes_to_zeros
+    set_initial_weight_update_values if @weight_update_values.nil?
+    set_previous_gradients_to_zeroes
+
+    while iteration < opts[:max_iterations]
+      iteration += 1
+
+      error = train_on_batch(data)
+      
+      if log_every && (iteration % log_every == 0)
+        puts "[#{iteration}] error: #{error.round(5)}"
+      end
+
+      break if error_threshold && (error < error_threshold)
+    end
+
+    {error: error.round(5), iterations: iteration, below_error_threshold: (error < error_threshold)}
+  end
+
   private
 
     def train_on_batch data
@@ -78,11 +78,9 @@ class NeuralNet
         total_mse += mean_squared_error training_error
       end
 
-      # update weights using gradients for batch
       update_weights
 
-      # return average mean squared error for batch
-      total_mse / data.length.to_f
+      total_mse / data.length.to_f # average mean squared error for batch
     end
 
     def calculate_training_error ideal_output
