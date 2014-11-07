@@ -19,7 +19,7 @@ class NeuralNet
     error = nil
 
     set_weight_changes_to_zeros
-    set_initial_weight_update_values
+    set_initial_weight_update_values if @weight_update_values.nil?
     set_previous_gradients_to_zeroes
 
     while iteration < opts[:max_iterations]
