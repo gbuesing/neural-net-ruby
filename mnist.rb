@@ -77,6 +77,10 @@ result = nn.train(train_data, log_every: 1, iterations: 100)
 
 puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t).round(1)}s"
 
+# # Marshal test
+# dumpfile = 'mnist/network.dump'
+# File.write(dumpfile, Marshal.dump(nn))
+# nn = Marshal.load(File.read(dumpfile))
 
 puts "\nTesting the trained network..."
 

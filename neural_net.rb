@@ -7,18 +7,17 @@ class NeuralNet
     error_threshold:  0.01
   }
 
-  def initialize(shape)
+  def initialize shape
     @shape = shape
-    @output_layer = @shape.length - 1
-    set_initial_weight_values
   end
 
   def run input
     # Input to this method represents the output of the first layer (i.e., the input layer)
     @outputs = [input]
+    set_initial_weight_values if @weights.nil?
 
     # Now calculate output of neurons in subsequent layers:
-    1.upto(@output_layer).each do |layer|
+    1.upto(output_layer).each do |layer|
       source_layer = layer - 1 # i.e, the layer that is feeding into this one
       source_outputs = @outputs[source_layer]
 
@@ -36,7 +35,7 @@ class NeuralNet
     end
 
     # Outputs of neurons in the last layer is the final result
-    @outputs[@output_layer]
+    @outputs[output_layer]
   end
 
   def train data, opts = {}
@@ -45,8 +44,9 @@ class NeuralNet
     iteration = 0
     error = nil
 
-    set_weight_changes_to_zeros
+    set_initial_weight_values if @weights.nil?
     set_initial_weight_update_values if @weight_update_values.nil?
+    set_weight_changes_to_zeros
     set_previous_gradients_to_zeroes
 
     while iteration < opts[:max_iterations]
@@ -84,7 +84,7 @@ class NeuralNet
     end
 
     def calculate_training_error ideal_output
-      @outputs[@output_layer].map.with_index do |output, i| 
+      @outputs[output_layer].map.with_index do |output, i| 
         output - ideal_output[i]
       end
     end
@@ -92,7 +92,7 @@ class NeuralNet
     def update_gradients training_error
       deltas = []
       # Starting from output layer and working backwards, backpropagating the training error
-      @output_layer.downto(1).each do |layer|
+      output_layer.downto(1).each do |layer|
         deltas[layer] = []
         source_layer = layer - 1
         source_neurons = @shape[source_layer] + 1 # account for bias neuron
@@ -103,7 +103,7 @@ class NeuralNet
           activation_derivative = output * (1.0 - output)
 
           # calculate delta for neuron
-          delta = deltas[layer][neuron] = if layer == @output_layer
+          delta = deltas[layer][neuron] = if layer == output_layer
             # For neurons in output layer, use training error
             -training_error[neuron] * activation_derivative
           else
@@ -132,7 +132,7 @@ class NeuralNet
     # Now that we've calculated gradients for the batch, we can use these to update the weights
     # Using the RPROP algorithm - somewhat more complicated than classic backpropagation algorithm, but much faster
     def update_weights
-      1.upto(@output_layer) do |layer|
+      1.upto(output_layer) do |layer|
         source_layer = layer - 1
         source_neurons = @shape[source_layer] + 1 # account for bias neuron
 
@@ -213,6 +213,10 @@ class NeuralNet
       end
     end
 
+    def output_layer
+      @shape.length - 1
+    end
+
     def sigmoid x
       1 / (1 + Math::E**-x)
     end
@@ -229,5 +233,13 @@ class NeuralNet
       else
         x <=> 0 # returns 1 if postitive, -1 if negative
       end
+    end
+
+    def marshal_dump
+      [@shape, @weights, @weight_update_values]
+    end
+
+    def marshal_load array
+      @shape, @weights, @weight_update_values = array
     end
 end
