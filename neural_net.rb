@@ -1,5 +1,6 @@
 class NeuralNet
-  attr_reader :shape, :weights, :outputs, :gradients
+  attr_reader :shape, :outputs
+  attr_accessor :weights, :weight_update_values
 
   DEFAULT_TRAINING_OPTIONS = {
     max_iterations:   1_000,
