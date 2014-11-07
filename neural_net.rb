@@ -1,11 +1,9 @@
 class NeuralNet
-  attr_reader :shape, :weights, :outputs
+  attr_reader :shape, :weights, :outputs, :gradients
 
   DEFAULT_TRAINING_OPTIONS = {
-    max_iterations:   20_000,
-    learning_rate:    0.3,
-    momentum:         0.1,
-    error_threshold:  0.005
+    max_iterations:   1_000,
+    error_threshold:  0.01
   }
 
   def initialize(shape)
@@ -21,11 +19,13 @@ class NeuralNet
     error = nil
 
     set_weight_changes_to_zeros
+    set_initial_weight_update_values
+    set_previous_gradients_to_zeroes
 
     while iteration < opts[:max_iterations]
       iteration += 1
 
-      error = train_on_batch(data, opts[:learning_rate], opts[:momentum])
+      error = train_on_batch(data)
       
       if log_every && (iteration % log_every == 0)
         puts "[#{iteration}] error: #{error.round(5)}"
@@ -65,7 +65,7 @@ class NeuralNet
 
   private
 
-    def train_on_batch data, learning_rate, momentum
+    def train_on_batch data
       total_error = 0
 
       set_gradients_to_zeroes
@@ -81,7 +81,7 @@ class NeuralNet
       end
 
       # update weights using gradients for batch
-      update_weights learning_rate, momentum
+      update_weights
 
       # return average error for batch
       total_error / (data.length.to_f)
@@ -144,21 +144,42 @@ class NeuralNet
       end
     end
 
+    MIN_STEP, MAX_STEP = Math::E**-6, 50
+
     # Now that we've calculated gradients for the batch, we can use these to update the weights
-    def update_weights learning_rate, momentum
+    # Using the RPROP algorithm - somewhat more complicated than classic backpropagation algorithm, but much faster
+    def update_weights
       1.upto(@output_layer) do |layer|
         source_layer = layer - 1
         source_neurons = @shape[source_layer] + 1 # account for bias neuron
 
         @shape[layer].times do |neuron|
           source_neurons.times do |source_neuron|
-            gradient = @gradients[layer][neuron][source_neuron]
-            previous_weight_change = @weight_changes[layer][neuron][source_neuron]
+            weight = @weights[layer][neuron][source_neuron]
+            weight_change = @weight_changes[layer][neuron][source_neuron]
+            weight_update_value = @weight_update_values[layer][neuron][source_neuron]
+            # for RPROP, we use the negative of the calculated gradient
+            gradient = -@gradients[layer][neuron][source_neuron]
+            previous_gradient = @previous_gradients[layer][neuron][source_neuron]
 
-            weight_change = (learning_rate * gradient) + (momentum * previous_weight_change)
+            c = sign(gradient * previous_gradient)
+
+            case c
+              when 1 then # no sign change; accelerate gradient descent
+                weight_update_value = [weight_update_value * 1.2, MAX_STEP].min
+                weight_change = -sign(gradient) * weight_update_value
+              when -1 then # sign change; we've jumped over a local minimum
+                weight_update_value = [weight_update_value * 0.5, MIN_STEP].max
+                weight_change = -weight_change # roll back previous weight change
+                gradient = 0 # so won't trigger sign change on next update
+              when 0 then
+                weight_change = -sign(gradient) * weight_update_value
+            end
 
             @weights[layer][neuron][source_neuron] += weight_change
             @weight_changes[layer][neuron][source_neuron] = weight_change
+            @weight_update_values[layer][neuron][source_neuron] = weight_update_value
+            @previous_gradients[layer][neuron][source_neuron] = gradient
           end
         end
       end
@@ -172,12 +193,20 @@ class NeuralNet
       @gradients = build_matrix { 0.0 }
     end
 
+    def set_previous_gradients_to_zeroes
+      @previous_gradients = build_matrix { 0.0 }
+    end
+
+    def set_initial_weight_update_values
+      @weight_update_values = build_matrix { 0.1 }
+    end
+
     def set_initial_weight_values
       # Initialize all weights to random float value
       @weights = build_matrix { rand(-0.5..0.5) }  
 
       # Update weights for first hidden layer (Nguyen-Widrow method)
-      # This is a bit obscure, and not entirely necessary, but it will help the network train faster
+      # This is a bit obscure, and not entirely necessary, but it should help the network train faster
       beta = 0.7 * @shape[1]**(1.0 / @shape[0])
 
       @shape[1].times do |neuron|
@@ -201,13 +230,21 @@ class NeuralNet
       end
     end
 
-    # http://en.wikipedia.org/wiki/Sigmoid_function
     def sigmoid x
       1 / (1 + Math::E**-x)
     end
 
-    # http://en.wikipedia.org/wiki/Mean_squared_error
     def mean_squared_error errors
       errors.map {|e| e**2}.reduce(:+) / errors.length.to_f
+    end
+
+    ZERO_TOLERANCE = Math::E**-16
+
+    def sign x
+      if x < ZERO_TOLERANCE && x > -ZERO_TOLERANCE # if float very close to 0
+        0
+      else
+        x <=> 0 # returns 1 if postitive, -1 if negative
+      end
     end
 end

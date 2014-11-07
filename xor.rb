@@ -14,15 +14,13 @@ training_data = [
 
 # 1. Train the network...
 
-result = nn.train(training_data,  learning_rate: 0.7, 
-                                  momentum: 0.3,
-                                  max_iterations: 1_000, 
-                                  error_threshold: 0.005, 
+result = nn.train(training_data,  max_iterations: 1_000, 
+                                  error_threshold: 0.001, 
                                   log_every: 100
                                   )
 
 puts result
-
+# raise nn.gradients.inspect
 
 # 2. Test the trained network...
 
@@ -37,7 +35,7 @@ training_data.each do |(input, expected)|
     failure += 1
   end
 
-  puts "#{input.inspect}: [#{output[0].round(2)}] #{(output[0] > 0.5).inspect}"  
+  puts "#{input.inspect}: [#{output[0].round(4)}] #{(output[0].round == 1).inspect}"  
 end
 
 puts "Test prediction success: #{success}, failure: #{failure}"

@@ -63,15 +63,13 @@ puts "Untrained prediction success: #{success}, failure: #{failure}"
 puts "\nTraining the network...\n\n"
 
 t1 = Time.now
-result = nn.train(train_data, learning_rate: 0.3, 
-                              momentum: 0.1,
-                              error_threshold: 0.005, 
-                              max_iterations: 2_000,
+result = nn.train(train_data, error_threshold: 0.01, 
+                              max_iterations: 1_000,
                               log_every: 100
                               )
 
 # puts result
-puts "\nDone training the network. #{(Time.now - t1).round(1)}s"
+puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t1).round(1)}s"
 
 
 puts "\nTesting the trained network..."
