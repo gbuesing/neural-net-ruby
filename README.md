@@ -1,9 +1,9 @@
 Neural Net (in Ruby)
 ===
 
-A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_network) with [resilient backpropagation](http://en.wikipedia.org/wiki/Rprop), written in Ruby. It's ~250 loc, with no external dependencies.
+A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_network) with [resilient backpropagation](http://en.wikipedia.org/wiki/Rprop) (Rprop). It's ~250 loc, with no external dependencies.
 
-Run ```ruby iris.rb``` to see an example of a neural net solving a classification problem: predict the species of an iris flower based on sepal and petal size.
+Run ```iris.rb``` to see an example of solving a simple classification problem: predict the species of iris flower based on sepal and petal size.
 
 Sources and inspirations:
 

@@ -8,7 +8,7 @@ mnist_images_file = 'mnist/train-images-idx3-ubyte.gz'
 mnist_labels_file = 'mnist/train-labels-idx1-ubyte.gz'
 
 unless File.exist?(mnist_images_file) && File.exist?(mnist_labels_file)
-  raise "Missing MNIST datafiles\nDownload MNIST datafiles from: \nhttp://yann.lecun.com/exdb/mnist/"
+  raise "Missing MNIST datafiles\nMNIST datafiles must be present in an mnist/ directory\nDownload from: http://yann.lecun.com/exdb/mnist/"
 end
 
 # MNIST loading code adapted from here:
