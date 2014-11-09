@@ -44,20 +44,33 @@ test_data = iris_data.slice(100, 50)
 # Bias neurons are automatically added to input + hidden layers; no need to specify these
 nn = NeuralNet.new [4,4,3]
 
-puts "Testing the untrained network..."
-
 prediction_success = -> (actual, ideal) {
   predicted = (0..2).max_by {|i| actual[i] }
   ideal[predicted] == 1 
 }
 
-success, failure = 0,0
-test_data.each do |input, expected|
-  output = nn.run input
-  prediction_success.(output, expected) ? success += 1 : failure += 1
-end
+mse = -> (actual, ideal) {
+  errors = actual.zip(ideal).map {|a, i| a - i }
+  (errors.inject(0) {|sum, err| sum += err**2}) / errors.length.to_f
+}
 
-puts "Untrained prediction success: #{success}, failure: #{failure}"
+error_rate = -> (errors, total) { ((errors / total.to_f) * 100).round }
+
+run_test = -> (nn, test_data) {
+  success, failure, errsum = 0,0,0
+  test_data.each do |input, expected|
+    output = nn.run input
+    prediction_success.(output, expected) ? success += 1 : failure += 1
+    errsum += mse.(output, expected)
+  end
+  [success, failure, errsum / test_data.length.to_f]
+}
+
+puts "Testing the untrained network..."
+
+success, failure, avg_mse = run_test.(nn, test_data)
+
+puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
 
 
 puts "\nTraining the network...\n\n"
@@ -74,18 +87,6 @@ puts "\nDone training the network: #{result[:iterations]} iterations, error #{re
 
 puts "\nTesting the trained network..."
 
-mse = -> (actual, ideal) {
-  errors = actual.zip(ideal).map {|a, i| a - i }
-  (errors.inject(0) {|sum, err| sum += err**2}) / errors.length.to_f
-}
+success, failure, avg_mse = run_test.(nn, test_data)
 
-success, failure, errorsum = 0,0,0
-
-test_data.each do |input, expected|
-  output = nn.run input
-  prediction_success.(output, expected) ? success += 1 : failure += 1
-  errorsum += mse.(output, expected)
-end
-
-puts "Trained prediction success: #{success}, failure: #{failure}"
-# puts "Test data error: #{(errorsum / test_data.length.to_f).round(5)}"
+puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"

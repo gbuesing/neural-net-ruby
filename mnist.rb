@@ -58,17 +58,34 @@ test_data = dataset.slice(train_size, test_size)
 
 nn = NeuralNet.new [28*28,100,10]
 
+error_rate = -> (errors, total) { ((errors / total.to_f) * 100).round }
+
+mse = -> (actual, ideal) {
+  errors = actual.zip(ideal).map {|a, i| a - i }
+  (errors.inject(0) {|sum, err| sum += err**2}) / errors.length.to_f
+}
+
+prediction_success = -> (actual, ideal) {
+  predicted = (0..9).max_by{|i| actual[i]}
+  ideal = (0..9).max_by{|i| ideal[i]}
+  predicted == ideal
+}
+
+run_test = -> (nn, test_data) {
+  success, failure, errsum = 0,0, 0
+  test_data.each do |input, expected|
+    output = nn.run input
+    prediction_success.(output, expected) ? success += 1 : failure += 1
+    errsum += mse.(output, expected)
+  end
+  [success, failure, errsum / test_data.length.to_f]
+}
+
 puts "Testing the untrained network..."
 
-success, failure = 0,0
-test_data.each do |input, expected|
-  output = nn.run input
-  predicted = (0..9).max_by{|i| output[i]}
-  actual = (0..9).max_by{|i| expected[i]}
-  predicted == actual ? success += 1 : failure += 1
-end
+success, failure, avg_mse = run_test.(nn, test_data)
 
-puts "Untrained prediction success: #{success}, failure: #{failure}"
+puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
 
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
@@ -84,12 +101,6 @@ puts "\nDone training the network: #{result[:iterations]} iterations, error #{re
 
 puts "\nTesting the trained network..."
 
-success, failure = 0,0
-test_data.each do |input, expected|
-  output = nn.run input
-  predicted = (0..9).max_by{|i| output[i]}
-  actual = (0..9).max_by{|i| expected[i]}
-  predicted == actual ? success += 1 : failure += 1
-end
+success, failure, avg_mse = run_test.(nn, test_data)
 
-puts "Trained prediction success: #{success}, failure: #{failure}"
+puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
