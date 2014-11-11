@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'distance_measures' # gem install distance_measures
+
 class NeuralNet
   attr_reader :shape, :outputs
   attr_accessor :weights, :weight_update_values
@@ -23,12 +26,14 @@ class NeuralNet
 
       @outputs[layer] = @weights[layer].map do |neuron_weights|
         # inputs to this neuron are the neuron outputs from the source layer times weights
-        inputs = neuron_weights.map.with_index do |weight, i| 
-          source_output = source_outputs[i] || 1 # if no output, this is the bias neuron
-          weight * source_output
-        end
+        # inputs = neuron_weights.map.with_index do |weight, i| 
+        #   source_output = source_outputs[i] || 1 # if no output, this is the bias neuron
+        #   weight * source_output
+        # end
 
-        sum_of_inputs = inputs.reduce(:+)
+        # sum_of_inputs = inputs.reduce(:+)
+        source_outputs_with_bias = source_outputs + [1]
+        sum_of_inputs = neuron_weights.dot_product source_outputs_with_bias
         # the activated output of this neuron (using sigmoid activation function)
         sigmoid sum_of_inputs
       end
