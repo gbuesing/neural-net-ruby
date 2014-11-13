@@ -1,4 +1,4 @@
-require_relative 'neural_net'
+require './neural_net'
 require 'zlib'
 
 # This neural net performs OCR on handwritten digits from the MNIST dataset

@@ -1,4 +1,4 @@
-require_relative 'neural_net'
+require './neural_net'
 
 # This neural network will predict the species of an iris based on sepal and petal size
 # Dataset: http://en.wikipedia.org/wiki/Iris_flower_data_set
