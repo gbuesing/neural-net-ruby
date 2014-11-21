@@ -1,9 +1,9 @@
-require './neural_net'
+require_relative '../neural_net'
 
 # This neural network will predict the species of an iris based on sepal and petal size
 # Dataset: http://en.wikipedia.org/wiki/Iris_flower_data_set
 
-rows = File.readlines("iris.data").map {|l| l.chomp.split(',') }
+rows = File.readlines("examples/iris.data").map {|l| l.chomp.split(',') }
 
 rows.shuffle!
 

@@ -1,11 +1,11 @@
-require './neural_net'
+require_relative '../neural_net'
 require 'zlib'
 
 # This neural net performs OCR on handwritten digits from the MNIST dataset
 # MNIST datafiles can be downloaded here: http://yann.lecun.com/exdb/mnist/
 
-mnist_images_file = 'mnist/train-images-idx3-ubyte.gz'
-mnist_labels_file = 'mnist/train-labels-idx1-ubyte.gz'
+mnist_images_file = 'examples/mnist/train-images-idx3-ubyte.gz'
+mnist_labels_file = 'examples/mnist/train-labels-idx1-ubyte.gz'
 
 unless File.exist?(mnist_images_file) && File.exist?(mnist_labels_file)
   raise "Missing MNIST datafiles\nMNIST datafiles must be present in an mnist/ directory\nDownload from: http://yann.lecun.com/exdb/mnist/"
