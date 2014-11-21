@@ -99,25 +99,26 @@ class NeuralNet
         target_layer = layer + 1
 
         @shape[layer].times do |neuron|
-          output = @outputs[layer][neuron]
-          activation_derivative = output * (1.0 - output)
 
-          # calculate delta for neuron
-          delta = deltas[layer][neuron] = if layer == output_layer
-            # For neurons in output layer, use training error
-            -training_error[neuron] * activation_derivative
+          neuron_error = if layer == output_layer
+            -training_error[neuron]
           else
-            # For neurons in hidden layers, weight deltas from target layer
             weighted_target_deltas = deltas[target_layer].map.with_index do |target_delta, target_neuron| 
               target_weight = @weights[target_layer][target_neuron][neuron]
               target_delta * target_weight
             end
 
-            sum_of_weighted_target_deltas = weighted_target_deltas.reduce(:+)
-            activation_derivative * sum_of_weighted_target_deltas
+            weighted_target_deltas.reduce(:+)
           end
 
-          # use delta to calculate gradients
+          output = @outputs[layer][neuron]
+          activation_derivative = output * (1.0 - output)
+
+          delta = deltas[layer][neuron] = neuron_error * activation_derivative
+
+          # gradient for each of this neuron's incoming weights is calculated:
+          # the last output from incoming source neuron (from -1 layer)
+          # times this neuron's delta (calculated from error coming back from +1 layer)
           source_neurons.times do |source_neuron|
             source_output = @outputs[source_layer][source_neuron] || 1 # if no output, this is the bias neuron
             gradient = source_output * delta
