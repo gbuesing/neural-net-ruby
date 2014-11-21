@@ -46,14 +46,20 @@ test_size = 100
 # maps input to float between 0 and 1
 normalize = -> (val, fromLow, fromHigh, toLow, toHigh) {  (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow).to_f }
 
-dataset = data.slice(0,train_size + test_size).map do |row|
+x_data, y_data = [], []
+
+data.slice(0,train_size + test_size).each do |row|
   image = row[0].unpack('C*')
   image = image.map {|v| normalize.(v, 0, 256, 0, 1)}
-  [image, row[1]]
+  x_data << image
+  y_data << row[1]
 end
 
-train_data = dataset.slice(0, train_size)
-test_data = dataset.slice(train_size, test_size)
+x_train = x_data.slice(0, train_size)
+y_train = y_data.slice(0, train_size)
+
+x_test = x_data.slice(train_size, test_size)
+y_test = y_data.slice(train_size, test_size)
 
 
 nn = NeuralNet.new [28*28,100,10]
@@ -71,26 +77,26 @@ prediction_success = -> (actual, ideal) {
   predicted == ideal
 }
 
-run_test = -> (nn, test_data) {
-  success, failure, errsum = 0,0, 0
-  test_data.each do |input, expected|
+run_test = -> (nn, inputs, expected_outputs) {
+  success, failure, errsum = 0,0,0
+  inputs.each.with_index do |input, i|
     output = nn.run input
-    prediction_success.(output, expected) ? success += 1 : failure += 1
-    errsum += mse.(output, expected)
+    prediction_success.(output, expected_outputs[i]) ? success += 1 : failure += 1
+    errsum += mse.(output, expected_outputs[i])
   end
-  [success, failure, errsum / test_data.length.to_f]
+  [success, failure, errsum / inputs.length.to_f]
 }
 
 puts "Testing the untrained network..."
 
-success, failure, avg_mse = run_test.(nn, test_data)
+success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
+puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
 
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
-result = nn.train(train_data, log_every: 1, iterations: 100)
+result = nn.train(x_train, y_train, log_every: 1, iterations: 100)
 
 puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t).round(1)}s"
 
@@ -101,6 +107,6 @@ puts "\nDone training the network: #{result[:iterations]} iterations, error #{re
 
 puts "\nTesting the trained network..."
 
-success, failure, avg_mse = run_test.(nn, test_data)
+success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
+puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"

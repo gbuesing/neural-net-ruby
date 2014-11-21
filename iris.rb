@@ -3,42 +3,38 @@ require './neural_net'
 # This neural network will predict the species of an iris based on sepal and petal size
 # Dataset: http://en.wikipedia.org/wiki/Iris_flower_data_set
 
+rows = File.readlines("iris.data").map {|l| l.chomp.split(',') }
+
+rows.shuffle!
+
 label_encodings = {
   "Iris-setosa"     => [1, 0, 0], 
   "Iris-versicolor" => [0, 1, 0], 
   "Iris-virginica"  => [0, 0 ,1]
 }
 
-iris_data = []
-
-File.open("iris.data") do |f|
-  while line = f.gets
-    values = line.chomp.split(',')
-    label = values.pop
-    iris_data << [ values.map(&:to_f), label_encodings[label] ]
-  end
-end
-
+x_data = rows.map {|row| row[0,4].map(&:to_f) }
+y_data = rows.map {|row| label_encodings[row[4]] }
 
 # Normalize data values before feeding into network
 normalize = -> (val, high, low) {  (val - low) / (high - low) } # maps input to float between 0 and 1
 
 columns = (0..3).map do |i|
-  iris_data.map {|row| row[0][i] }
+  x_data.map {|row| row[i] }
 end
 
-iris_data.each.with_index do |row, i|
-  normalized = row[0].map.with_index do |val, j| 
+x_data.map! do |row|
+  row.map.with_index do |val, j|
     max, min = columns[j].max, columns[j].min
     normalize.(val, max, min)
   end
-  iris_data[i][0] = normalized
 end
 
+x_train = x_data.slice(0, 100)
+y_train = y_data.slice(0, 100)
 
-iris_data.shuffle!
-train_data = iris_data.slice(0, 100)
-test_data = iris_data.slice(100, 50)
+x_test = x_data.slice(100, 50)
+y_test = y_data.slice(100, 50)
 
 # Build a 3 layer network: 4 input neurons, 4 hidden neurons, 3 output neurons
 # Bias neurons are automatically added to input + hidden layers; no need to specify these
@@ -56,30 +52,30 @@ mse = -> (actual, ideal) {
 
 error_rate = -> (errors, total) { ((errors / total.to_f) * 100).round }
 
-run_test = -> (nn, test_data) {
+run_test = -> (nn, inputs, expected_outputs) {
   success, failure, errsum = 0,0,0
-  test_data.each do |input, expected|
+  inputs.each.with_index do |input, i|
     output = nn.run input
-    prediction_success.(output, expected) ? success += 1 : failure += 1
-    errsum += mse.(output, expected)
+    prediction_success.(output, expected_outputs[i]) ? success += 1 : failure += 1
+    errsum += mse.(output, expected_outputs[i])
   end
-  [success, failure, errsum / test_data.length.to_f]
+  [success, failure, errsum / inputs.length.to_f]
 }
 
 puts "Testing the untrained network..."
 
-success, failure, avg_mse = run_test.(nn, test_data)
+success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
+puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
 
 
 puts "\nTraining the network...\n\n"
 
 t1 = Time.now
-result = nn.train(train_data, error_threshold: 0.01, 
-                              max_iterations: 1_000,
-                              log_every: 100
-                              )
+result = nn.train(x_train, y_train, error_threshold: 0.01, 
+                                    max_iterations: 1_000,
+                                    log_every: 100
+                                    )
 
 # puts result
 puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t1).round(1)}s"
@@ -87,6 +83,6 @@ puts "\nDone training the network: #{result[:iterations]} iterations, error #{re
 
 puts "\nTesting the trained network..."
 
-success, failure, avg_mse = run_test.(nn, test_data)
+success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, test_data.length)}%, mse: #{avg_mse.round(5)})"
+puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"

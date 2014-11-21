@@ -38,7 +38,7 @@ class NeuralNet
     @outputs[output_layer]
   end
 
-  def train data, opts = {}
+  def train inputs, expected_outputs, opts = {}
     opts = DEFAULT_TRAINING_OPTIONS.merge(opts)
     error_threshold, log_every = opts[:error_threshold], opts[:log_every]
     iteration = 0
@@ -52,7 +52,7 @@ class NeuralNet
     while iteration < opts[:max_iterations]
       iteration += 1
 
-      error = train_on_batch(data)
+      error = train_on_batch(inputs, expected_outputs)
       
       if log_every && (iteration % log_every == 0)
         puts "[#{iteration}] error: #{error.round(5)}"
@@ -66,21 +66,21 @@ class NeuralNet
 
   private
 
-    def train_on_batch data
+    def train_on_batch inputs, expected_outputs
       total_mse = 0
 
       set_gradients_to_zeroes
 
-      data.each do |(input, ideal_output)|
+      inputs.each.with_index do |input, i|
         run input
-        training_error = calculate_training_error ideal_output
+        training_error = calculate_training_error expected_outputs[i]
         update_gradients training_error
         total_mse += mean_squared_error training_error
       end
 
       update_weights
 
-      total_mse / data.length.to_f # average mean squared error for batch
+      total_mse / inputs.length.to_f # average mean squared error for batch
     end
 
     def calculate_training_error ideal_output
