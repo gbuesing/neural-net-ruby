@@ -5,7 +5,7 @@ A [feedforward neural network](http://en.wikipedia.org/wiki/Feedforward_neural_n
 
 This implementation trains significantly faster than [ai4r](https://github.com/SergioFierens/ai4r)'s backpropagation neural network, mainly because the Rprop training algorithm implemented here is much faster than the non-batch backpropagation algorithm used in ai4r.
 
-However, this implementation is significantly slower than [ruby-fann](https://github.com/tangledpath/ruby-fann), which wraps the FANN library, written in C. If you're looking for something production-ready, use ruby-fann.
+However, this implementation is significantly slower than [ruby-fann](https://github.com/tangledpath/ruby-fann), which wraps the FANN library, written in C. If you're looking for something production-ready, check out ruby-fann.
 
 
 Examples
@@ -22,3 +22,4 @@ Sources and inspirations
 - [Hacker's guide to Neural Networks](http://karpathy.github.io/neuralnets/)
 - [https://github.com/harthur/brain](https://github.com/harthur/brain)
 - [The RPROP Algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.21.1417&rep=rep1&type=pdf)
+- [Resources for Machine Learning in Ruby](https://gist.github.com/gbuesing/865b814d312f46775cda)
