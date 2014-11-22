@@ -42,6 +42,7 @@ data.shuffle!
 
 train_size = (ARGV[0] || 100).to_i
 test_size = 100
+hidden_layer_size = (ARGV[1] || 25).to_i
 
 # maps input to float between 0 and 1
 normalize = -> (val, fromLow, fromHigh, toLow, toHigh) {  (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow).to_f }
@@ -61,8 +62,8 @@ y_train = y_data.slice(0, train_size)
 x_test = x_data.slice(train_size, test_size)
 y_test = y_data.slice(train_size, test_size)
 
-
-nn = NeuralNet.new [28*28,100,10]
+puts "Initializing network with #{hidden_layer_size} hidden neurons."
+nn = NeuralNet.new [28*28,hidden_layer_size,10]
 
 error_rate = -> (errors, total) { ((errors / total.to_f) * 100).round }
 
