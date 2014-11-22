@@ -63,7 +63,7 @@ x_test = x_data.slice(train_size, test_size)
 y_test = y_data.slice(train_size, test_size)
 
 puts "Initializing network with #{hidden_layer_size} hidden neurons."
-nn = NeuralNet.new [28*28,hidden_layer_size,10]
+nn = NeuralNet.new [28*28,hidden_layer_size, 50, 10]
 
 error_rate = -> (errors, total) { ((errors / total.to_f) * 100).round }
 
@@ -94,7 +94,6 @@ success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
 puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
 
-
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
 result = nn.train(x_train, y_train, log_every: 1, iterations: 100)
@@ -111,3 +110,12 @@ puts "\nTesting the trained network..."
 success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
 puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
+
+begin
+  require_relative './image_grid'
+rescue LoadError
+  puts "\ngem install chunky_png to output visualization of hidden weights"
+  exit
+end
+
+ImageGrid.new(nn.weights[1]).to_file 'examples/mnist/hidden1_weights.png'
