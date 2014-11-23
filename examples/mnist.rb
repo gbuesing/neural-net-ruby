@@ -38,7 +38,7 @@ data = images.map.with_index do |image, i|
   [image, target]
 end
 
-data.shuffle!
+# data.shuffle!
 
 train_size = (ARGV[0] || 100).to_i
 test_size = 100
@@ -62,6 +62,7 @@ y_train = y_data.slice(0, train_size)
 x_test = x_data.slice(train_size, test_size)
 y_test = y_data.slice(train_size, test_size)
 
+
 puts "Initializing network with #{hidden_layer_size} hidden neurons."
 nn = NeuralNet.new [28*28,hidden_layer_size, 50, 10]
 
@@ -72,11 +73,8 @@ mse = -> (actual, ideal) {
   (errors.inject(0) {|sum, err| sum += err**2}) / errors.length.to_f
 }
 
-prediction_success = -> (actual, ideal) {
-  predicted = (0..9).max_by{|i| actual[i]}
-  ideal = (0..9).max_by{|i| ideal[i]}
-  predicted == ideal
-}
+decode_output = -> (output) { (0..9).max_by {|i| output[i]} }
+prediction_success = -> (actual, ideal) { decode_output.(actual) == decode_output.(ideal) }
 
 run_test = -> (nn, inputs, expected_outputs) {
   success, failure, errsum = 0,0,0
@@ -96,7 +94,7 @@ puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate:
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
-result = nn.train(x_train, y_train, log_every: 1, iterations: 100)
+result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100)
 
 puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t).round(1)}s"
 
@@ -111,11 +109,6 @@ success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
 puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
 
-begin
-  require_relative './image_grid'
-rescue LoadError
-  puts "\ngem install chunky_png to output visualization of hidden weights"
-  exit
-end
 
-ImageGrid.new(nn.weights[1]).to_file 'examples/mnist/hidden1_weights.png'
+# require_relative './image_grid'
+# ImageGrid.new(nn.weights[1]).to_file 'examples/mnist/hidden_weights.png'

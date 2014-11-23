@@ -22,8 +22,9 @@ class ImageGrid
 
       maxes, mins = [], []
       @data.length.times do |img|
-        maxes << @data[img].max
-        mins << @data[img].min
+        imgdata = @data[img].slice(0, 28*28) 
+        maxes << imgdata.max
+        mins << imgdata.min
       end
       max = maxes.max
       min = mins.min
@@ -61,4 +62,4 @@ end
 
 # require_relative '../neural_net'
 # nn = Marshal.load(File.read('examples/mnist/network.dump'))
-# ImageGrid.new(nn.weights[1]).to_file 'test.png'
+# ImageGrid.new(nn.weights[1]).to_file 'examples/mnist/test.png'
