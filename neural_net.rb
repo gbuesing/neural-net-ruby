@@ -128,7 +128,7 @@ class NeuralNet
       end
     end
 
-    MIN_STEP, MAX_STEP = Math::E**-6, 50
+    MIN_STEP, MAX_STEP = Math.exp(-6), 50
 
     # Now that we've calculated gradients for the batch, we can use these to update the weights
     # Using the RPROP algorithm - somewhat more complicated than classic backpropagation algorithm, but much faster
@@ -219,14 +219,14 @@ class NeuralNet
     end
 
     def sigmoid x
-      1 / (1 + Math::E**-x)
+      1 / (1 + Math.exp(-x))
     end
 
     def mean_squared_error errors
       errors.map {|e| e**2}.reduce(:+) / errors.length.to_f
     end
 
-    ZERO_TOLERANCE = Math::E**-16
+    ZERO_TOLERANCE = Math.exp(-16)
 
     def sign x
       if x < ZERO_TOLERANCE && x > -ZERO_TOLERANCE # if float very close to 0
