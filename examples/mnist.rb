@@ -94,7 +94,7 @@ puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate:
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
-result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100)
+result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100, error_threshold:  0.005)
 
 puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t).round(1)}s"
 

@@ -229,10 +229,12 @@ class NeuralNet
     ZERO_TOLERANCE = Math.exp(-16)
 
     def sign x
-      if x < ZERO_TOLERANCE && x > -ZERO_TOLERANCE # if float very close to 0
-        0
+      if x > ZERO_TOLERANCE
+        1
+      elsif x < -ZERO_TOLERANCE
+        -1
       else
-        x <=> 0 # returns 1 if postitive, -1 if negative
+        0 # x is zero, or a float very close to zero
       end
     end
 
