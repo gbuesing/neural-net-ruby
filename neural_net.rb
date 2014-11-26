@@ -85,7 +85,7 @@ class NeuralNet
 
     def calculate_training_error ideal_output
       @outputs[output_layer].map.with_index do |output, i| 
-        output - ideal_output[i]
+        ideal_output[i] - output
       end
     end
 
@@ -142,8 +142,7 @@ class NeuralNet
             weight = @weights[layer][neuron][source_neuron]
             weight_change = @weight_changes[layer][neuron][source_neuron]
             weight_update_value = @weight_update_values[layer][neuron][source_neuron]
-            # for RPROP, we use the negative of the calculated gradient
-            gradient = -@gradients[layer][neuron][source_neuron]
+            gradient = @gradients[layer][neuron][source_neuron]
             previous_gradient = @previous_gradients[layer][neuron][source_neuron]
 
             c = sign(gradient * previous_gradient)
