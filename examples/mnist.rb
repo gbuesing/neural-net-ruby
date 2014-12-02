@@ -90,13 +90,13 @@ puts "Testing the untrained network..."
 
 success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Untrained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
+puts "Untrained prediction success: #{success}, failure: #{failure} (Prediction error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
 result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100, error_threshold:  0.005)
 
-puts "\nDone training the network: #{result[:iterations]} iterations, error #{result[:error].round(5)}, #{(Time.now - t).round(1)}s"
+puts "\nDone training the network: #{result[:iterations]} iterations, #{(result[:error] * 100).round(2)}% mse, #{(Time.now - t).round(1)}s"
 
 # # Marshal test
 # dumpfile = 'mnist/network.dump'
@@ -107,7 +107,7 @@ puts "\nTesting the trained network..."
 
 success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Trained prediction success: #{success}, failure: #{failure} (Error rate: #{error_rate.(failure, x_test.length)}%, mse: #{avg_mse.round(5)})"
+puts "Trained prediction success: #{success}, failure: #{failure} (Prediction error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
 
 
 # require_relative './image_grid'

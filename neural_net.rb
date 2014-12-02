@@ -55,7 +55,7 @@ class NeuralNet
       error = train_on_batch(inputs, expected_outputs)
       
       if log_every && (iteration % log_every == 0)
-        puts "[#{iteration}] error: #{error.round(5)}"
+        puts "[#{iteration}] #{(error * 100).round(2)}% mse"
       end
 
       break if error_threshold && (error < error_threshold)
