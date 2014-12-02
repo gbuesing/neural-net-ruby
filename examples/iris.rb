@@ -66,7 +66,7 @@ puts "Testing the untrained network..."
 
 success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Untrained prediction success: #{success}, failure: #{failure} (Prediction error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
+puts "Untrained classification success: #{success}, failure: #{failure} (classification error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
 
 
 puts "\nTraining the network...\n\n"
@@ -85,4 +85,4 @@ puts "\nTesting the trained network..."
 
 success, failure, avg_mse = run_test.(nn, x_test, y_test)
 
-puts "Trained prediction success: #{success}, failure: #{failure} (Prediction error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
+puts "Trained classification success: #{success}, failure: #{failure} (classification error: #{error_rate.(failure, x_test.length)}%, mse: #{(avg_mse * 100).round(2)}%)"
