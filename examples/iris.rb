@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../neural_net'
 
 # This neural network will predict the species of an iris based on sepal and petal size
