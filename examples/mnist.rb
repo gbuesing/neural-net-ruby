@@ -94,7 +94,7 @@ puts "Untrained classification success: #{success}, failure: #{failure} (classif
 
 puts "\nTraining the network with #{train_size} data samples...\n\n"
 t = Time.now
-result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100, error_threshold:  0.005)
+result = nn.train(x_train, y_train, log_every: 1, max_iterations: 100, error_threshold:  0.01)
 
 puts "\nDone training the network: #{result[:iterations]} iterations, #{(result[:error] * 100).round(2)}% mse, #{(Time.now - t).round(1)}s"
 
