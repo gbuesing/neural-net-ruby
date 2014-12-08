@@ -65,8 +65,8 @@ puts "Testing the untrained network..."
 mpg_err, avg_mse = run_test.(nn, x_test, y_test)
 puts "Average prediction error: #{mpg_err.round(2)} mpg (mse: #{(avg_mse * 100).round(2)}%)"
 
-puts "\nUntrained test examples (first 10):"
-show_examples.(nn, x_test, y_test)
+# puts "\nUntrained test examples (first 10):"
+# show_examples.(nn, x_test, y_test)
 
 puts "\nTraining the network...\n\n"
 t1 = Time.now
