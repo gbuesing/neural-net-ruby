@@ -19,6 +19,7 @@ Sources and inspirations
 ---
 
 - [Introduction to the Math of Neural Networks](http://www.amazon.com/Introduction-Math-Neural-Networks-Heaton-ebook/dp/B00845UQL6)
+- [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
 - [Thoughtful Machine Learning: A Test-Driven Approach](http://www.amazon.com/Thoughtful-Machine-Learning-Test-Driven-Approach/dp/1449374069)
 - [Hacker's guide to Neural Networks](http://karpathy.github.io/neuralnets/)
 - [https://github.com/harthur/brain](https://github.com/harthur/brain)
