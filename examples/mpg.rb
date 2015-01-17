@@ -41,14 +41,21 @@ mse = -> (actual, ideal) {
 
 run_test = -> (nn, inputs, expected_outputs) {
   mpg_err, errsum = 0, 0
+  outputs = []
 
   inputs.each.with_index do |input, i|
     output = nn.run input
+    outputs << output
     mpg_err += (to_mpg.(output[0]) - to_mpg.(expected_outputs[i][0])).abs
     errsum += mse.(output, expected_outputs[i])
   end
 
-  [mpg_err / inputs.length.to_f, errsum / inputs.length.to_f]
+  y_mean = expected_outputs.inject(0.0) { |sum, val| sum + val[0] } / expected_outputs.size
+  y_sum_squares = expected_outputs.map{|val| (val[0] - y_mean)**2 }.reduce(:+)
+  y_residual_sum_squares = outputs.zip(expected_outputs).map {|out, expected| (expected[0] - out[0])**2 }.reduce(:+)
+  r_squared = 1.0 - (y_residual_sum_squares / y_sum_squares)
+
+  [mpg_err / inputs.length.to_f, errsum / inputs.length.to_f, r_squared]
 }
 
 show_examples = -> (nn, x, y) {
@@ -64,8 +71,8 @@ show_examples = -> (nn, x, y) {
 nn = NeuralNet.new [4, 4, 1]
 
 puts "Testing the untrained network..."
-mpg_err, avg_mse = run_test.(nn, x_test, y_test)
-puts "Average prediction error: #{mpg_err.round(2)} mpg (mse: #{(avg_mse * 100).round(2)}%)"
+mpg_err, avg_mse, r_squared = run_test.(nn, x_test, y_test)
+puts "Average prediction error: #{mpg_err.round(2)} mpg (mse: #{(avg_mse * 100).round(2)}%, r-squared: #{r_squared.round(2)})"
 
 # puts "\nUntrained test examples (first 10):"
 # show_examples.(nn, x_test, y_test)
@@ -81,8 +88,8 @@ result = nn.train(x_train, y_train, error_threshold: 0.005,
 puts "\nDone training the network: #{result[:iterations]} iterations, #{(result[:error] * 100).round(2)}% mse, #{(Time.now - t1).round(1)}s"
 
 puts "\nTesting the trained network..."
-mpg_err, avg_mse = run_test.(nn, x_test, y_test)
-puts "Average prediction error: #{mpg_err.round(2)} mpg (mse: #{(avg_mse * 100).round(2)}%)"
+mpg_err, avg_mse, r_squared = run_test.(nn, x_test, y_test)
+puts "Average prediction error: #{mpg_err.round(2)} mpg (mse: #{(avg_mse * 100).round(2)}%, r-squared: #{r_squared.round(2)})"
 
 puts "\nTrained test examples (first 10):"
 show_examples.(nn, x_test, y_test)

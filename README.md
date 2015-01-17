@@ -11,7 +11,7 @@ However, this implementation is significantly slower than [ruby-fann](https://gi
 Examples
 ---
 - ```iris.rb```: solves a simple classification problem: predict the species of iris flower based on sepal and petal size.
-- ```mpg.rb```: solves a simple regression problem: predict the mpg of a car based on car attributes.
+- ```mpg.rb```: solves a simple regression problem: predict the miles per gallon of a car based on car attributes.
 - ```mnist.rb```: performs OCR on handwritten digits. Requires download of MNIST dataset; see instructions at top of file.
 
 
