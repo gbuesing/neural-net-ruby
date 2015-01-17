@@ -41,10 +41,8 @@ class NeuralNet
   def train inputs, expected_outputs, opts = {}
     opts = DEFAULT_TRAINING_OPTIONS.merge(opts)
     error_threshold, log_every = opts[:error_threshold], opts[:log_every]
-    iteration = 0
-    error = nil
+    iteration, error = 0, 0
 
-    set_initial_weight_values if @weights.nil?
     set_initial_weight_update_values if @weight_update_values.nil?
     set_weight_changes_to_zeros
     set_previous_gradients_to_zeroes
@@ -203,13 +201,12 @@ class NeuralNet
 
     def build_matrix
       Array.new(@shape.length) do |layer|
+        next if layer == 0
         source_layer = layer - 1
         source_neurons = @shape[source_layer] + 1 # account for bias neuron
 
-        if source_layer >= 0
-          Array.new(@shape[layer]) do |neuron|
-            Array.new(source_neurons) { yield }
-          end
+        Array.new(@shape[layer]) do |neuron|
+          Array.new(source_neurons) { yield }
         end
       end
     end
