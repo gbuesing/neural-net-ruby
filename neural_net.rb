@@ -168,24 +168,24 @@ class NeuralNet
     end
 
     def set_weight_changes_to_zeros
-      @weight_changes = build_matrix { 0.0 }
+      @weight_changes = build_connection_matrixes { 0.0 }
     end
 
     def set_gradients_to_zeroes
-      @gradients = build_matrix { 0.0 }
+      @gradients = build_connection_matrixes { 0.0 }
     end
 
     def set_previous_gradients_to_zeroes
-      @previous_gradients = build_matrix { 0.0 }
+      @previous_gradients = build_connection_matrixes { 0.0 }
     end
 
     def set_initial_weight_update_values
-      @weight_update_values = build_matrix { 0.1 }
+      @weight_update_values = build_connection_matrixes { 0.1 }
     end
 
     def set_initial_weight_values
       # Initialize all weights to random float value
-      @weights = build_matrix { rand(-0.5..0.5) }  
+      @weights = build_connection_matrixes { rand(-0.5..0.5) }  
 
       # Update weights for first hidden layer (Nguyen-Widrow method)
       # This is a bit obscure, and not entirely necessary, but it should help the network train faster
@@ -199,15 +199,18 @@ class NeuralNet
       end
     end
 
-    def build_matrix
-      Array.new(@shape.length) do |layer|
-        next if layer == 0
-        source_layer = layer - 1
-        source_neurons = @shape[source_layer] + 1 # account for bias neuron
+    def build_connection_matrixes
+      1.upto(output_layer).inject({}) do |hsh, layer|
+        # Number of incoming connections to each neuron in this layer:
+        source_neurons = @shape[layer - 1] + 1 # == number of neurons in prev layer + a bias neuron
 
-        Array.new(@shape[layer]) do |neuron|
+        # matrix[neuron] == Array of values for each incoming connection to neuron
+        matrix = Array.new(@shape[layer]) do |neuron|
           Array.new(source_neurons) { yield }
         end
+
+        hsh[layer] = matrix
+        hsh
       end
     end
 
