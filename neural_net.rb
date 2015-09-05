@@ -88,10 +88,10 @@ class NeuralNet
     end
 
     def update_gradients training_error
-      deltas = []
+      deltas = {}
       # Starting from output layer and working backwards, backpropagating the training error
       output_layer.downto(1).each do |layer|
-        deltas[layer] = []
+        deltas[layer] = Array.new(@shape[layer])
         source_layer = layer - 1
         source_neurons = @shape[source_layer] + 1 # account for bias neuron
         target_layer = layer + 1
