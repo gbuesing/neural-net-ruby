@@ -137,7 +137,6 @@ class NeuralNet
 
         @shape[layer].times do |neuron|
           source_neurons.times do |source_neuron|
-            weight = @weights[layer][neuron][source_neuron]
             weight_change = @weight_changes[layer][neuron][source_neuron]
             weight_update_value = @weight_update_values[layer][neuron][source_neuron]
             # for RPROP, we use the negative of the calculated gradient
