@@ -91,16 +91,14 @@ class NeuralNet
       deltas = {}
       # Starting from output layer and working backwards, backpropagating the training error
       output_layer.downto(1).each do |layer|
-        deltas[layer] = Array.new(@shape[layer])
-        source_layer = layer - 1
-        source_neurons = @shape[source_layer] + 1 # account for bias neuron
-        target_layer = layer + 1
+        deltas[layer] = []
 
         @shape[layer].times do |neuron|
-
           neuron_error = if layer == output_layer
             -training_error[neuron]
           else
+            target_layer = layer + 1
+
             weighted_target_deltas = deltas[target_layer].map.with_index do |target_delta, target_neuron| 
               target_weight = @weights[target_layer][target_neuron][neuron]
               target_delta * target_weight
@@ -117,10 +115,14 @@ class NeuralNet
           # gradient for each of this neuron's incoming weights is calculated:
           # the last output from incoming source neuron (from -1 layer)
           # times this neuron's delta (calculated from error coming back from +1 layer)
+          source_neurons = @shape[layer - 1] + 1 # account for bias neuron
+          source_outputs = @outputs[layer - 1]
+          gradients = @gradients[layer][neuron]
+
           source_neurons.times do |source_neuron|
-            source_output = @outputs[source_layer][source_neuron] || 1 # if no output, this is the bias neuron
+            source_output = source_outputs[source_neuron] || 1 # if no output, this is the bias neuron
             gradient = source_output * delta
-            @gradients[layer][neuron][source_neuron] += gradient # accumulate gradients from batch
+            gradients[source_neuron] += gradient # accumulate gradients from batch
           end
         end
       end
