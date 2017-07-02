@@ -25,3 +25,7 @@ Sources and inspirations
 - [https://github.com/harthur/brain](https://github.com/harthur/brain)
 - [The RPROP Algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.21.1417&rep=rep1&type=pdf)
 - [Resources for Machine Learning in Ruby](https://gist.github.com/gbuesing/865b814d312f46775cda)
+
+License
+---
+MIT
